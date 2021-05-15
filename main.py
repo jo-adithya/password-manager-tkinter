@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice, shuffle
@@ -48,8 +49,21 @@ def add_entry():
                                                   f'Password: {entry[website]["password"]}\n'
                                                   f'Is it okay to save?')
     if is_ok:
-        with open('password.json', mode='a+') as f:
-            json.dump(entry, f, indent=True)
+        try:
+            with open('password.json', mode='r') as file:
+                # Read existing data
+                data = json.load(file)
+        except (FileNotFoundError, JSONDecodeError):
+            with open('password.json', mode='w') as file:
+                json.dump(entry, file, indent=4)
+        else:
+            # Update existing data with new data
+            data.update(entry)
+
+            with open('password.json', mode='w') as file:
+                # Save the updated data
+                json.dump(data, file, indent=4)
+        finally:
             web_input.delete(0, END)
             email_input.delete(0, END)
             pass_input.delete(0, END)
